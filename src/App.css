@@ -1,0 +1,37 @@
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+  background-color: #f8f9fa;
+}
+
+.formula-bar {
+  padding: 4px 8px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spreadsheet {
+  flex: 1;
+  overflow: auto;
+}
+
+.cell {
+  border: 1px solid #e1e1e1;
+  padding: 4px;
+  min-width: 80px;
+  height: 25px;
+  outline: none;
+}
+
+.cell.active {
+  border: 2px solid #1a73e8;
+}
+
