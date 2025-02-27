@@ -1,0 +1,89 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border-color);
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  border-right: 1px solid var(--border-color);
+  gap: 2px;
+}
+
+.toolbar-group:last-child {
+  border-right: none;
+}
+
+.toolbar button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toolbar button:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.toolbar button.active {
+  background: var(--hover-bg);
+  color: var(--primary-color);
+}
+
+.toolbar select {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.toolbar select:hover {
+  background: var(--hover-bg);
+  border-color: var(--border-color);
+}
+
+.toolbar .font-family {
+  width: 120px;
+}
+
+.toolbar .font-size {
+  width: 60px;
+}
+
+.toolbar .material-icons {
+  font-size: 20px;
+}
+
+/* Tooltip styles */
+.toolbar button[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+} 
