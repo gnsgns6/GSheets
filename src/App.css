@@ -101,11 +101,15 @@
   overflow: auto;
   position: relative;
   background: white;
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
 .spreadsheet table {
   border-collapse: collapse;
   table-layout: fixed;
+  transform: translateZ(0);
 }
 
 .spreadsheet th {
@@ -116,6 +120,12 @@
   font-size: 12px;
   text-align: center;
   user-select: none;
+  z-index: 10;
+  transition: background-color 0.1s ease;
+}
+
+.spreadsheet th:hover {
+  background-color: #e8eaed;
 }
 
 .spreadsheet thead th {
@@ -123,7 +133,7 @@
   height: 24px;
   border-bottom: 1px solid var(--border-color);
   border-right: 1px solid var(--border-color);
-  z-index: 2;
+  z-index: 12;
 }
 
 .spreadsheet tbody th {
@@ -131,12 +141,12 @@
   width: 40px;
   border-right: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
-  z-index: 1;
+  z-index: 11;
 }
 
 .spreadsheet thead th:first-child {
   left: 0;
-  z-index: 3;
+  z-index: 13;
 }
 
 .cell {
@@ -150,11 +160,45 @@
   overflow: hidden;
   text-overflow: ellipsis;
   background-color: white;
+  transition: all 0.1s ease-in-out;
+  cursor: cell;
+  user-select: none;
+  position: relative;
 }
 
-.cell:focus, .cell.active {
+.cell:hover {
+  background-color: #f8f9fa;
+  transform: scale(1.01);
+  z-index: 1;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.cell.active {
   border: 2px solid var(--active-cell-border);
   padding: 2px 5px;
+  background-color: #fff;
+  box-shadow: 0 0 4px rgba(26, 115, 232, 0.2);
+  z-index: 2;
+}
+
+.cell::selection {
+  background-color: rgba(26, 115, 232, 0.1);
+}
+
+.cell:focus {
+  animation: cell-focus 0.2s ease-out;
+}
+
+@keyframes cell-focus {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Selection overlay */
