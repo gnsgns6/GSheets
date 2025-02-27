@@ -1,8 +1,10 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { evaluateFormula } from '../utils/formulas';
 
 function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadsheetData }) {
   const ROWS = 100;
   const COLS = 26;
+  const [editingCell, setEditingCell] = useState(null);
 
   const getCellId = (row, col) => {
     const colLetter = String.fromCharCode(65 + col);
@@ -11,21 +13,48 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
 
   const handleCellClick = useCallback((cellId) => {
     setActiveCell(cellId);
+    setEditingCell(cellId);
   }, [setActiveCell]);
+
+  const handleCellBlur = (cellId, value) => {
+    setEditingCell(null);
+    if (value === spreadsheetData[cellId]) return;
+
+    const newData = { ...spreadsheetData };
+    newData[cellId] = value;
+    setSpreadsheetData(newData);
+  };
+
+  const getCellContent = (cellId) => {
+    const value = spreadsheetData[cellId];
+    if (!value) return '';
+    
+    // If we're editing, show the raw formula
+    if (editingCell === cellId) return value;
+    
+    // If it's a formula, evaluate it
+    if (typeof value === 'string' && value.startsWith('=')) {
+      return evaluateFormula(value, spreadsheetData);
+    }
+    
+    return value;
+  };
 
   const renderCell = (row, col) => {
     const cellId = getCellId(row, col);
     const isActive = cellId === activeCell;
+    const content = getCellContent(cellId);
     
     return (
       <td 
         key={cellId}
         className={`cell ${isActive ? 'active' : ''}`}
         onClick={() => handleCellClick(cellId)}
+        onBlur={(e) => handleCellBlur(cellId, e.target.textContent)}
         contentEditable
         suppressContentEditableWarning
       >
-        {spreadsheetData[cellId] || ''}
+        {content}
       </td>
     );
   };
