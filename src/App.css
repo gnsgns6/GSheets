@@ -1,37 +1,167 @@
+:root {
+  --border-color: #e2e3e3;
+  --toolbar-bg: #f9fbfd;
+  --header-bg: #f8f9fa;
+  --cell-border: #e1e1e1;
+  --active-cell-border: #1a73e8;
+  --toolbar-height: 36px;
+  --formula-bar-height: 28px;
+}
+
 .app {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  font-family: 'Arial', sans-serif;
 }
 
+/* Toolbar Styling */
 .toolbar {
-  padding: 8px;
-  border-bottom: 1px solid #ccc;
-  background-color: #f8f9fa;
+  height: var(--toolbar-height);
+  padding: 0 6px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--toolbar-bg);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
+.toolbar select, .toolbar button {
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background-color: transparent;
+  padding: 0 8px;
+  font-size: 14px;
+  color: #444;
+}
+
+.toolbar select:hover, .toolbar button:hover {
+  background-color: #f1f3f4;
+  border-color: var(--border-color);
+}
+
+.toolbar button {
+  min-width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.toolbar input[type="color"] {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+}
+
+/* Formula Bar Styling */
 .formula-bar {
-  padding: 4px 8px;
-  border-bottom: 1px solid #ccc;
+  height: var(--formula-bar-height);
+  padding: 0 6px;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   gap: 8px;
+  background-color: white;
 }
 
-.spreadsheet {
+.cell-reference {
+  min-width: 60px;
+  padding: 0 8px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--header-bg);
+  font-size: 14px;
+  color: #444;
+}
+
+.formula-input {
   flex: 1;
-  overflow: auto;
-}
-
-.cell {
-  border: 1px solid #e1e1e1;
-  padding: 4px;
-  min-width: 80px;
-  height: 25px;
+  height: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0 8px;
+  font-size: 14px;
   outline: none;
 }
 
-.cell.active {
-  border: 2px solid #1a73e8;
+.formula-input:focus {
+  border-color: var(--active-cell-border);
+}
+
+/* Spreadsheet Styling */
+.spreadsheet {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  background: white;
+}
+
+.spreadsheet table {
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.spreadsheet th {
+  position: sticky;
+  background-color: var(--header-bg);
+  font-weight: normal;
+  color: #333;
+  font-size: 12px;
+  text-align: center;
+  user-select: none;
+}
+
+.spreadsheet thead th {
+  top: 0;
+  height: 24px;
+  border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  z-index: 2;
+}
+
+.spreadsheet tbody th {
+  left: 0;
+  width: 40px;
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 1;
+}
+
+.spreadsheet thead th:first-child {
+  left: 0;
+  z-index: 3;
+}
+
+.cell {
+  border: 1px solid var(--cell-border);
+  padding: 3px 6px;
+  min-width: 80px;
+  height: 24px;
+  outline: none;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background-color: white;
+}
+
+.cell:focus, .cell.active {
+  border: 2px solid var(--active-cell-border);
+  padding: 2px 5px;
+}
+
+/* Selection overlay */
+.selection-overlay {
+  position: absolute;
+  background-color: rgba(26, 115, 232, 0.1);
+  border: 2px solid var(--active-cell-border);
+  pointer-events: none;
 }
 

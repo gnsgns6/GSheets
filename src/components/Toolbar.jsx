@@ -3,18 +3,53 @@ import React from 'react';
 function Toolbar() {
   return (
     <div className="toolbar">
-      <select>
+      <select className="font-family">
         <option>Arial</option>
-        <option>Times New Roman</option>
-        <option>Calibri</option>
+        <option>Google Sans</option>
+        <option>Roboto</option>
+        <option>Roboto Mono</option>
       </select>
       
-      <button title="Bold"><strong>B</strong></button>
-      <button title="Italic"><em>I</em></button>
-      <button title="Underline"><u>U</u></button>
+      <select className="font-size">
+        {[8, 9, 10, 11, 12, 14, 16, 18, 24, 36].map(size => (
+          <option key={size}>{size}</option>
+        ))}
+      </select>
+
+      <div className="separator" style={{ width: '1px', height: '20px', backgroundColor: '#e1e1e1', margin: '0 4px' }} />
       
-      <input type="color" title="Text Color" />
-      <input type="color" title="Fill Color" />
+      <button title="Bold (⌘B)">
+        <i className="material-icons">format_bold</i>
+      </button>
+      <button title="Italic (⌘I)">
+        <i className="material-icons">format_italic</i>
+      </button>
+      <button title="Underline (⌘U)">
+        <i className="material-icons">format_underlined</i>
+      </button>
+      
+      <div className="separator" style={{ width: '1px', height: '20px', backgroundColor: '#e1e1e1', margin: '0 4px' }} />
+      
+      <button title="Text color">
+        <i className="material-icons">format_color_text</i>
+      </button>
+      <button title="Fill color">
+        <i className="material-icons">format_color_fill</i>
+      </button>
+      
+      <div className="separator" style={{ width: '1px', height: '20px', backgroundColor: '#e1e1e1', margin: '0 4px' }} />
+      
+      <button title="Align left">
+        <i className="material-icons">format_align_left</i>
+      </button>
+      <button title="Align center">
+        <i className="material-icons">format_align_center</i>
+      </button>
+      <button title="Align right">
+        <i className="material-icons">format_align_right</i>
+      </button>
+      
+      <div className="separator" style={{ width: '1px', height: '20px', backgroundColor: '#e1e1e1', margin: '0 4px' }} />
       
       <select title="Functions">
         <option value="">Functions</option>
