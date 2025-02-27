@@ -11,7 +11,11 @@ function App() {
   return (
     <div className="app">
       <Toolbar />
-      <FormulaBar activeCell={activeCell} />
+      <FormulaBar 
+        activeCell={activeCell} 
+        spreadsheetData={spreadsheetData}
+        setSpreadsheetData={setSpreadsheetData}
+      />
       <Spreadsheet 
         activeCell={activeCell}
         setActiveCell={setActiveCell}
