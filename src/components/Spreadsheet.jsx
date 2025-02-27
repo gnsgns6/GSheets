@@ -18,21 +18,39 @@ const MemoizedCell = React.memo(({
   onCellBlur, 
   onCellInput, 
   onKeyDown, 
-  cellRef 
-}) => (
-  <td 
-    className={`cell ${isActive ? 'active' : ''}`}
-    onClick={() => onCellClick(cellId)}
-    onBlur={(e) => onCellBlur(cellId, e.target.innerText)}
-    onInput={(e) => onCellInput(e, cellId)}
-    onKeyDown={(e) => onKeyDown(e, cellId)}
-    ref={cellRef}
-    contentEditable
-    suppressContentEditableWarning
-  >
-    {content}
-  </td>
-));
+  cellRef,
+  style 
+}) => {
+  const [editValue, setEditValue] = useState(content);
+
+  useEffect(() => {
+    setEditValue(content);
+  }, [content]);
+
+  return (
+    <td 
+      className={`cell ${isActive ? 'active' : ''}`}
+      onClick={() => onCellClick(cellId)}
+      style={style}
+    >
+      {isActive ? (
+        <div
+          ref={cellRef}
+          contentEditable
+          suppressContentEditableWarning
+          className="cell-input"
+          onBlur={(e) => onCellBlur(cellId, e.target.textContent)}
+          onInput={(e) => onCellInput(e, cellId)}
+          onKeyDown={(e) => onKeyDown(e, cellId)}
+        >
+          {content}
+        </div>
+      ) : (
+        <div className="cell-content">{content}</div>
+      )}
+    </td>
+  );
+});
 
 function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadsheetData }) {
   const ROWS = 100;
@@ -43,30 +61,33 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
   const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
   const [selectedFormulaIndex, setSelectedFormulaIndex] = useState(0);
   const activeCellRef = useRef(null);
+  const [columnWidths, setColumnWidths] = useState({});
+  const [resizingColumn, setResizingColumn] = useState(null);
+  const [startX, setStartX] = useState(0);
+  const [startWidth, setStartWidth] = useState(0);
 
-  // Focus active cell when it changes
   useEffect(() => {
     if (activeCellRef.current) {
       activeCellRef.current.focus();
+      // Set cursor to end
+      const range = document.createRange();
+      const sel = window.getSelection();
+      const node = activeCellRef.current;
+      if (node.childNodes.length > 0) {
+        const lastChild = node.childNodes[node.childNodes.length - 1];
+        range.setStartAfter(lastChild);
+      } else {
+        range.setStart(node, 0);
+      }
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
     }
   }, [activeCell]);
 
-  const filteredFormulas = FORMULAS.filter(formula =>
-    formula.name.toLowerCase().startsWith(formulaSearch.toLowerCase())
-  );
-
   const handleCellInput = (e, cellId) => {
-    const content = e.target.innerText;
+    const content = e.target.textContent;
     
-    // Update spreadsheet data immediately
-    const newData = { ...spreadsheetData };
-    if (content.trim() === '') {
-      delete newData[cellId];
-    } else {
-      newData[cellId] = content;
-    }
-    setSpreadsheetData(newData);
-
     if (content === '=') {
       const rect = e.target.getBoundingClientRect();
       setDropdownPosition({
@@ -89,30 +110,9 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
     setActiveCell(cellId);
     setEditingCell(cellId);
     setShowFormulaDropdown(false);
-    
-    // Set cursor to end of content on click
-    requestAnimationFrame(() => {
-      if (activeCellRef.current) {
-        const range = document.createRange();
-        const sel = window.getSelection();
-        const content = activeCellRef.current.childNodes[0] || activeCellRef.current;
-        
-        try {
-          range.setStart(content, content.length || 0);
-          range.setEnd(content, content.length || 0);
-          sel.removeAllRanges();
-          sel.addRange(range);
-        } catch (e) {
-          // Handle empty cell
-          activeCellRef.current.focus();
-        }
-      }
-    });
   }, [setActiveCell]);
 
   const handleCellBlur = (cellId, value) => {
-    if (value === spreadsheetData[cellId]) return;
-
     const newData = { ...spreadsheetData };
     if (value.trim() === '') {
       delete newData[cellId];
@@ -145,14 +145,11 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
         case 'Escape':
           setShowFormulaDropdown(false);
           break;
-        default:
-          break;
       }
     } else if (e.key === 'Enter') {
       e.preventDefault();
       const content = e.target.textContent;
       
-      // Update the spreadsheet data
       const newData = { ...spreadsheetData };
       if (content.trim() === '') {
         delete newData[cellId];
@@ -161,7 +158,6 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
       }
       setSpreadsheetData(newData);
 
-      // If it's a formula, immediately show the result
       if (content.startsWith('=')) {
         const result = evaluateFormula(content, newData);
         e.target.textContent = result;
@@ -169,7 +165,6 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
 
       setEditingCell(null);
       
-      // Move to the cell below
       const nextRow = parseInt(cellId.match(/\d+/)[0]);
       const col = cellId.match(/[A-Z]+/)[0];
       const nextCellId = `${col}${nextRow + 1}`;
@@ -179,50 +174,100 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
 
   const insertFormula = (formulaName) => {
     if (editingCell && activeCellRef.current) {
-      const formulaText = `=${formulaName}()`;
-      activeCellRef.current.innerText = formulaText;
+      activeCellRef.current.textContent = `=${formulaName}()`;
       setShowFormulaDropdown(false);
       
-      // Place cursor between parentheses
       const range = document.createRange();
       const sel = window.getSelection();
       const text = activeCellRef.current.firstChild || activeCellRef.current;
-      const position = formulaText.length - 1;
+      const position = activeCellRef.current.textContent.length - 1;
       
-      try {
-        range.setStart(text, position);
-        range.setEnd(text, position);
-        sel.removeAllRanges();
-        sel.addRange(range);
-      } catch (e) {
-        console.error('Error setting cursor position:', e);
-      }
+      range.setStart(text, position);
+      range.setEnd(text, position);
+      sel.removeAllRanges();
+      sel.addRange(range);
     }
   };
 
   const getCellContent = (cellId) => {
     if (editingCell === cellId) {
-      // Show raw formula when editing
       return spreadsheetData[cellId] || '';
     }
 
     const value = spreadsheetData[cellId];
     if (!value) return '';
 
-    // If it's a formula, evaluate it
     if (typeof value === 'string' && value.startsWith('=')) {
-      const result = evaluateFormula(value, spreadsheetData);
-      return result;
+      return evaluateFormula(value, spreadsheetData);
     }
 
-    // Return regular value
     return value;
+  };
+
+  const getCellId = (row, col) => {
+    const colLetter = String.fromCharCode(65 + col);
+    return `${colLetter}${row + 1}`;
+  };
+
+  const handleResizeMouseDown = (e, colIndex) => {
+    e.preventDefault();
+    setResizingColumn(colIndex);
+    setStartX(e.clientX);
+    const currentWidth = columnWidths[colIndex] || 80; // default width
+    setStartWidth(currentWidth);
+  };
+
+  const handleResizeMouseMove = useCallback((e) => {
+    if (resizingColumn === null) return;
+    
+    const diff = e.clientX - startX;
+    const newWidth = Math.max(50, startWidth + diff); // minimum width of 50px
+    
+    setColumnWidths(prev => ({
+      ...prev,
+      [resizingColumn]: newWidth
+    }));
+  }, [resizingColumn, startX, startWidth]);
+
+  const handleResizeMouseUp = useCallback(() => {
+    setResizingColumn(null);
+  }, []);
+
+  useEffect(() => {
+    if (resizingColumn !== null) {
+      document.addEventListener('mousemove', handleResizeMouseMove);
+      document.addEventListener('mouseup', handleResizeMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleResizeMouseMove);
+        document.removeEventListener('mouseup', handleResizeMouseUp);
+      };
+    }
+  }, [resizingColumn, handleResizeMouseMove, handleResizeMouseUp]);
+
+  const renderColumnHeader = (colIndex) => {
+    const colLetter = String.fromCharCode(65 + colIndex);
+    const width = columnWidths[colIndex] || 80; // default width
+    
+    return (
+      <th 
+        key={colIndex} 
+        style={{ width: `${width}px` }}
+        className="column-header"
+      >
+        {colLetter}
+        <div
+          className="resize-handle"
+          onMouseDown={(e) => handleResizeMouseDown(e, colIndex)}
+        />
+      </th>
+    );
   };
 
   const renderCell = (row, col) => {
     const cellId = getCellId(row, col);
     const isActive = cellId === activeCell;
     const content = getCellContent(cellId);
+    const width = columnWidths[col] || 80; // default width
     
     return (
       <MemoizedCell
@@ -235,14 +280,14 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
         onCellInput={handleCellInput}
         onKeyDown={handleKeyDown}
         cellRef={isActive ? activeCellRef : null}
+        style={{ width: `${width}px` }}
       />
     );
   };
 
-  const getCellId = (row, col) => {
-    const colLetter = String.fromCharCode(65 + col);
-    return `${colLetter}${row + 1}`;
-  };
+  const filteredFormulas = FORMULAS.filter(formula =>
+    formula.name.toLowerCase().startsWith(formulaSearch.toLowerCase())
+  );
 
   const renderFormulaDropdown = () => {
     if (!showFormulaDropdown) return null;
@@ -274,20 +319,18 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
   };
 
   return (
-    <div className="spreadsheet">
+    <div className={`spreadsheet ${resizingColumn !== null ? 'resizing' : ''}`}>
       <table>
         <thead>
           <tr>
-            <th></th>
-            {Array(COLS).fill().map((_, i) => (
-              <th key={i}>{String.fromCharCode(65 + i)}</th>
-            ))}
+            <th className="corner-header"></th>
+            {Array(COLS).fill().map((_, i) => renderColumnHeader(i))}
           </tr>
         </thead>
         <tbody>
           {Array(ROWS).fill().map((_, row) => (
             <tr key={row}>
-              <th>{row + 1}</th>
+              <th className="row-header">{row + 1}</th>
               {Array(COLS).fill().map((_, col) => renderCell(row, col))}
             </tr>
           ))}
