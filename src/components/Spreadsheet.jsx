@@ -10,6 +10,30 @@ const FORMULAS = [
   { name: 'COUNT', description: 'Counts the number of cells with numbers in a range' }
 ];
 
+const MemoizedCell = React.memo(({ 
+  cellId, 
+  isActive, 
+  content, 
+  onCellClick, 
+  onCellBlur, 
+  onCellInput, 
+  onKeyDown, 
+  cellRef 
+}) => (
+  <td 
+    className={`cell ${isActive ? 'active' : ''}`}
+    onClick={() => onCellClick(cellId)}
+    onBlur={(e) => onCellBlur(cellId, e.target.innerText)}
+    onInput={(e) => onCellInput(e, cellId)}
+    onKeyDown={(e) => onKeyDown(e, cellId)}
+    ref={cellRef}
+    contentEditable
+    suppressContentEditableWarning
+  >
+    {content}
+  </td>
+));
+
 function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadsheetData }) {
   const ROWS = 100;
   const COLS = 26;
@@ -20,36 +44,29 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
   const [selectedFormulaIndex, setSelectedFormulaIndex] = useState(0);
   const activeCellRef = useRef(null);
 
+  // Focus active cell when it changes
+  useEffect(() => {
+    if (activeCellRef.current) {
+      activeCellRef.current.focus();
+    }
+  }, [activeCell]);
+
   const filteredFormulas = FORMULAS.filter(formula =>
     formula.name.toLowerCase().startsWith(formulaSearch.toLowerCase())
   );
 
-  const getCellId = (row, col) => {
-    const colLetter = String.fromCharCode(65 + col);
-    return `${colLetter}${row + 1}`;
-  };
-
-  const handleCellClick = useCallback((cellId) => {
-    setActiveCell(cellId);
-    setEditingCell(cellId);
-    setShowFormulaDropdown(false);
-  }, [setActiveCell]);
-
-  const handleCellBlur = (cellId, value) => {
-    if (value === spreadsheetData[cellId]) return;
-
+  const handleCellInput = (e, cellId) => {
+    const content = e.target.innerText;
+    
+    // Update spreadsheet data immediately
     const newData = { ...spreadsheetData };
-    if (value.trim() === '') {
+    if (content.trim() === '') {
       delete newData[cellId];
     } else {
-      newData[cellId] = value;
+      newData[cellId] = content;
     }
     setSpreadsheetData(newData);
-    setEditingCell(null);
-  };
 
-  const handleCellInput = (e, cellId) => {
-    const content = e.target.textContent;
     if (content === '=') {
       const rect = e.target.getBoundingClientRect();
       setDropdownPosition({
@@ -68,20 +85,42 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
     }
   };
 
-  const insertFormula = (formulaName) => {
-    if (editingCell && activeCellRef.current) {
-      activeCellRef.current.textContent = `=${formulaName}()`;
-      setShowFormulaDropdown(false);
-      
-      // Place cursor between parentheses
-      const range = document.createRange();
-      const sel = window.getSelection();
-      const text = activeCellRef.current.childNodes[0];
-      range.setStart(text, text.length - 1);
-      range.setEnd(text, text.length - 1);
-      sel.removeAllRanges();
-      sel.addRange(range);
+  const handleCellClick = useCallback((cellId) => {
+    setActiveCell(cellId);
+    setEditingCell(cellId);
+    setShowFormulaDropdown(false);
+    
+    // Set cursor to end of content on click
+    requestAnimationFrame(() => {
+      if (activeCellRef.current) {
+        const range = document.createRange();
+        const sel = window.getSelection();
+        const content = activeCellRef.current.childNodes[0] || activeCellRef.current;
+        
+        try {
+          range.setStart(content, content.length || 0);
+          range.setEnd(content, content.length || 0);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        } catch (e) {
+          // Handle empty cell
+          activeCellRef.current.focus();
+        }
+      }
+    });
+  }, [setActiveCell]);
+
+  const handleCellBlur = (cellId, value) => {
+    if (value === spreadsheetData[cellId]) return;
+
+    const newData = { ...spreadsheetData };
+    if (value.trim() === '') {
+      delete newData[cellId];
+    } else {
+      newData[cellId] = value;
     }
+    setSpreadsheetData(newData);
+    setEditingCell(null);
   };
 
   const handleKeyDown = (e, cellId) => {
@@ -138,6 +177,29 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
     }
   };
 
+  const insertFormula = (formulaName) => {
+    if (editingCell && activeCellRef.current) {
+      const formulaText = `=${formulaName}()`;
+      activeCellRef.current.innerText = formulaText;
+      setShowFormulaDropdown(false);
+      
+      // Place cursor between parentheses
+      const range = document.createRange();
+      const sel = window.getSelection();
+      const text = activeCellRef.current.firstChild || activeCellRef.current;
+      const position = formulaText.length - 1;
+      
+      try {
+        range.setStart(text, position);
+        range.setEnd(text, position);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } catch (e) {
+        console.error('Error setting cursor position:', e);
+      }
+    }
+  };
+
   const getCellContent = (cellId) => {
     if (editingCell === cellId) {
       // Show raw formula when editing
@@ -155,6 +217,31 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
 
     // Return regular value
     return value;
+  };
+
+  const renderCell = (row, col) => {
+    const cellId = getCellId(row, col);
+    const isActive = cellId === activeCell;
+    const content = getCellContent(cellId);
+    
+    return (
+      <MemoizedCell
+        key={cellId}
+        cellId={cellId}
+        isActive={isActive}
+        content={content}
+        onCellClick={handleCellClick}
+        onCellBlur={handleCellBlur}
+        onCellInput={handleCellInput}
+        onKeyDown={handleKeyDown}
+        cellRef={isActive ? activeCellRef : null}
+      />
+    );
+  };
+
+  const getCellId = (row, col) => {
+    const colLetter = String.fromCharCode(65 + col);
+    return `${colLetter}${row + 1}`;
   };
 
   const renderFormulaDropdown = () => {
@@ -186,62 +273,8 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
     );
   };
 
-  const MemoizedCell = React.memo(({ 
-    cellId, 
-    isActive, 
-    content, 
-    onCellClick, 
-    onCellBlur, 
-    onCellInput, 
-    onKeyDown, 
-    cellRef 
-  }) => (
-    <td 
-      className={`cell ${isActive ? 'active' : ''}`}
-      onClick={() => onCellClick(cellId)}
-      onBlur={(e) => onCellBlur(cellId, e.target.textContent)}
-      onInput={(e) => onCellInput(e, cellId)}
-      onKeyDown={(e) => onKeyDown(e, cellId)}
-      ref={cellRef}
-      contentEditable
-      suppressContentEditableWarning
-    >
-      {content}
-    </td>
-  ));
-
-  const renderCell = (row, col) => {
-    const cellId = getCellId(row, col);
-    const isActive = cellId === activeCell;
-    const content = getCellContent(cellId);
-    
-    return (
-      <MemoizedCell
-        key={cellId}
-        cellId={cellId}
-        isActive={isActive}
-        content={content}
-        onCellClick={handleCellClick}
-        onCellBlur={handleCellBlur}
-        onCellInput={handleCellInput}
-        onKeyDown={handleKeyDown}
-        cellRef={isActive ? activeCellRef : null}
-      />
-    );
-  };
-
-  // Use virtualization for large spreadsheets
-  const visibleRows = 50; // Number of rows to render at once
-  const [startRow, setStartRow] = useState(0);
-
-  const handleScroll = useCallback((e) => {
-    const scrollTop = e.target.scrollTop;
-    const newStartRow = Math.floor(scrollTop / 24); // 24px is row height
-    setStartRow(newStartRow);
-  }, []);
-
   return (
-    <div className="spreadsheet" onScroll={handleScroll}>
+    <div className="spreadsheet">
       <table>
         <thead>
           <tr>
@@ -252,16 +285,12 @@ function Spreadsheet({ activeCell, setActiveCell, spreadsheetData, setSpreadshee
           </tr>
         </thead>
         <tbody>
-          {Array(visibleRows).fill().map((_, index) => {
-            const row = startRow + index;
-            if (row >= ROWS) return null;
-            return (
-              <tr key={row}>
-                <th>{row + 1}</th>
-                {Array(COLS).fill().map((_, col) => renderCell(row, col))}
-              </tr>
-            );
-          })}
+          {Array(ROWS).fill().map((_, row) => (
+            <tr key={row}>
+              <th>{row + 1}</th>
+              {Array(COLS).fill().map((_, col) => renderCell(row, col))}
+            </tr>
+          ))}
         </tbody>
       </table>
       {renderFormulaDropdown()}

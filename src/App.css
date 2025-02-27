@@ -164,6 +164,9 @@
   cursor: cell;
   user-select: none;
   position: relative;
+  direction: ltr;
+  unicode-bidi: bidi-override;
+  text-align: left;
 }
 
 .cell:hover {
@@ -207,5 +210,10 @@
   background-color: rgba(26, 115, 232, 0.1);
   border: 2px solid var(--active-cell-border);
   pointer-events: none;
+}
+
+.cell[contenteditable="true"]:empty:before {
+  content: '';
+  display: inline-block;
 }
 
