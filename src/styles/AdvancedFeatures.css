@@ -9,7 +9,6 @@
   z-index: 100;
 }
 
-.file-operations,
 .chart-tools {
   display: flex;
   flex-direction: column;
@@ -17,8 +16,7 @@
   margin-bottom: 16px;
 }
 
-.advanced-features button,
-.load-button {
+.advanced-features button {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -30,8 +28,7 @@
   transition: background 0.2s ease;
 }
 
-.advanced-features button:hover,
-.load-button:hover {
+.advanced-features button:hover {
   background: var(--hover-bg);
 }
 

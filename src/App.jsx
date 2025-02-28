@@ -43,7 +43,10 @@ function App() {
 
   return (
     <div className="app">
-      <MenuBar />
+      <MenuBar 
+        spreadsheetData={spreadsheetData}
+        setSpreadsheetData={setSpreadsheetData}
+      />
       <Toolbar />
       <FormulaBar 
         activeCell={activeCell}

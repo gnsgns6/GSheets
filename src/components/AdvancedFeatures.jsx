@@ -27,38 +27,6 @@ function AdvancedFeatures({ spreadsheetData, setSpreadsheetData }) {
     }
   };
 
-  // Save and load spreadsheet data
-  const saveSpreadsheet = () => {
-    const data = {
-      content: spreadsheetData,
-      timestamp: new Date().toISOString(),
-      version: '1.0'
-    };
-    
-    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'spreadsheet.json';
-    a.click();
-  };
-
-  const loadSpreadsheet = (event) => {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      try {
-        const data = JSON.parse(e.target.result);
-        setSpreadsheetData(data.content);
-      } catch (error) {
-        console.error('Error loading spreadsheet:', error);
-      }
-    };
-
-    reader.readAsText(file);
-  };
-
   // Chart creation
   const createChart = (data, type = 'bar') => {
     if (!selectedRange) return;
@@ -84,24 +52,6 @@ function AdvancedFeatures({ spreadsheetData, setSpreadsheetData }) {
 
   return (
     <div className="advanced-features">
-      {/* File Operations */}
-      <div className="file-operations">
-        <button onClick={saveSpreadsheet}>
-          <i className="material-icons">save</i>
-          Save Spreadsheet
-        </button>
-        <label className="load-button">
-          <i className="material-icons">folder_open</i>
-          Load Spreadsheet
-          <input
-            type="file"
-            accept=".json"
-            onChange={loadSpreadsheet}
-            style={{ display: 'none' }}
-          />
-        </label>
-      </div>
-
       {/* Chart Creation */}
       <div className="chart-tools">
         <button onClick={() => setShowChartModal(true)}>
