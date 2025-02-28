@@ -1,0 +1,156 @@
+.spreadsheet-grid {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  background: white;
+  user-select: none;
+}
+
+.spreadsheet-grid table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  min-width: 100%;
+}
+
+/* Headers */
+.corner-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  width: 40px;
+  height: 25px;
+}
+
+.column-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  height: 25px;
+  padding: 0 4px;
+  font-weight: normal;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row-header {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--header-bg);
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  width: 40px;
+  padding: 0 4px;
+  font-weight: normal;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* Cells */
+.cell {
+  border-right: 1px solid var(--cell-border);
+  border-bottom: 1px solid var(--cell-border);
+  padding: 3px 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  background: white;
+  transition: background-color 0.1s ease;
+}
+
+.cell.active {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.cell.selected {
+  background-color: rgba(26, 115, 232, 0.1);
+}
+
+/* Resize handles */
+.column-resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  cursor: col-resize;
+  background: transparent;
+}
+
+.row-resize-handle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  cursor: row-resize;
+  background: transparent;
+}
+
+.column-resize-handle:hover,
+.row-resize-handle:hover {
+  background: var(--primary-color);
+}
+
+/* Resize indicators */
+.spreadsheet-grid.resizing-col {
+  cursor: col-resize;
+}
+
+.spreadsheet-grid.resizing-row {
+  cursor: row-resize;
+}
+
+/* Performance optimizations */
+.spreadsheet-grid {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.cell {
+  will-change: background-color;
+}
+
+/* Scrollbars */
+.spreadsheet-grid::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.spreadsheet-grid::-webkit-scrollbar-track {
+  background: var(--header-bg);
+}
+
+.spreadsheet-grid::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border: 3px solid var(--header-bg);
+  border-radius: 6px;
+}
+
+.spreadsheet-grid::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Selection overlay */
+.selection-overlay {
+  position: absolute;
+  pointer-events: none;
+  border: 2px solid var(--primary-color);
+  background: rgba(26, 115, 232, 0.1);
+  z-index: 1;
+} 

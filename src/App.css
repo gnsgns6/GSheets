@@ -14,12 +14,134 @@
   --formula-bar-height: 28px;
 }
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
 .app {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  font-family: 'Google Sans', 'Roboto', sans-serif;
-  color: var(--text-primary);
+  overflow: hidden;
+}
+
+/* Component Layout */
+.menu-bar {
+  flex-shrink: 0;
+  z-index: 4;
+}
+
+.toolbar {
+  flex-shrink: 0;
+  z-index: 3;
+}
+
+.formula-bar {
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.spreadsheet-grid {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.sheet-tabs {
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+/* Ensure proper stacking context */
+.app > * {
+  position: relative;
+}
+
+/* Global Styles */
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+input, select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Utility Classes */
+.material-icons {
+  font-size: 20px;
+  user-select: none;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--header-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Dropdown Menus */
+.dropdown {
+  position: absolute;
+  background: white;
+  border-radius: 4px;
+  box-shadow: var(--shadow-2);
+  z-index: 1000;
+}
+
+/* Tooltips */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 4px;
+}
+
+/* Focus Styles */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -1px;
 }
 
 /* Header/Menu Bar */

@@ -1,0 +1,77 @@
+.advanced-features {
+  position: fixed;
+  right: 20px;
+  top: 60px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-2);
+  padding: 16px;
+  z-index: 100;
+}
+
+.file-operations,
+.chart-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.advanced-features button,
+.load-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  background: var(--toolbar-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.advanced-features button:hover,
+.load-button:hover {
+  background: var(--hover-bg);
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  min-width: 400px;
+}
+
+.chart-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.chart-options button {
+  padding: 16px;
+  text-align: center;
+  justify-content: center;
+}
+
+/* Chart styles */
+.chart-container {
+  margin-top: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 16px;
+} 
