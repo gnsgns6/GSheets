@@ -1,0 +1,135 @@
+.formula-bar {
+  display: flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: white;
+  border-bottom: 1px solid var(--border-color);
+  height: 36px;
+  gap: 8px;
+}
+
+.formula-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 150px;
+}
+
+.fx-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--text-secondary);
+  border-radius: 4px;
+}
+
+.fx-icon:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.cell-reference {
+  font-size: 13px;
+  color: var(--text-secondary);
+  min-width: 60px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--header-bg);
+}
+
+.formula-bar-right {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.formula-input {
+  flex: 1;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  background: transparent;
+}
+
+.formula-input:hover {
+  border-color: var(--border-color);
+}
+
+.formula-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background: white;
+}
+
+.function-helper {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 4px;
+  box-shadow: var(--shadow-2);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 4px;
+}
+
+.function-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.function-item:last-child {
+  border-bottom: none;
+}
+
+.function-item:hover {
+  background: var(--hover-bg);
+}
+
+.function-name {
+  font-weight: 500;
+  color: var(--primary-color);
+  margin-bottom: 4px;
+}
+
+.function-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.function-syntax {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--header-bg);
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+/* Scrollbar styling for function helper */
+.function-helper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.function-helper::-webkit-scrollbar-track {
+  background: var(--header-bg);
+}
+
+.function-helper::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.function-helper::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+} 
