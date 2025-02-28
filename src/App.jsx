@@ -4,7 +4,6 @@ import Toolbar from './components/Toolbar';
 import FormulaBar from './components/FormulaBar';
 import SpreadsheetGrid from './components/SpreadsheetGrid';
 import SheetTabs from './components/SheetTabs';
-import AdvancedFeatures from './components/AdvancedFeatures';
 import './App.css';
 
 function App() {
@@ -66,10 +65,6 @@ function App() {
         onAddSheet={handleAddSheet}
         onDeleteSheet={handleDeleteSheet}
         onRenameSheet={handleRenameSheet}
-      />
-      <AdvancedFeatures 
-        spreadsheetData={spreadsheetData}
-        setSpreadsheetData={setSpreadsheetData}
       />
     </div>
   );
